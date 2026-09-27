@@ -1,0 +1,7 @@
+{
+  "name": "Aequitas Agentic Banking Co-Pilot",
+  "description": "Institutional agentic banking platform for autonomous fraud investigation, proactive SMB cash-flow management, and human-in-the-loop governance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

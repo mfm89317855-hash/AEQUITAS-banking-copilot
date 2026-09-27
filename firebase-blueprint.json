@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Commercial banking transaction monitored by autonomous fraud sentinel.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "accountNumber": { "type": "string", "maxLength": 32 },
+        "accountHolder": { "type": "string", "maxLength": 128 },
+        "businessName": { "type": "string", "maxLength": 128 },
+        "amount": { "type": "number" },
+        "timestamp": { "type": "string", "maxLength": 64 },
+        "counterparty": { "type": "string", "maxLength": 128 },
+        "rail": { "type": "string", "enum": ["Fedwire", "ACH", "RTP (Real-Time)", "Debit Card", "Internal Transfer"] },
+        "status": { "type": "string", "enum": ["Clearing", "Settled", "Precision Frozen", "Released", "Rejected"] },
+        "category": { "type": "string", "maxLength": 64 },
+        "anomalySignals": { "type": "array" }
+      },
+      "required": ["id", "amount", "status", "rail"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable supervisory audit trail entry for autonomous agent decisions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "maxLength": 64 },
+        "agentName": { "type": "string", "maxLength": 64 },
+        "actionTaken": { "type": "string", "maxLength": 512 },
+        "targetEntityId": { "type": "string", "maxLength": 128 },
+        "graduatedTier": { "type": "string", "maxLength": 64 },
+        "humanSignOffRequired": { "type": "boolean" },
+        "humanSignOffStatus": { "type": "string", "enum": ["Pending", "Approved", "Overridden", "Auto-Executed"] },
+        "immutableHash": { "type": "string", "maxLength": 128 },
+        "regulatoryReference": { "type": "string", "maxLength": 256 }
+      },
+      "required": ["id", "timestamp", "agentName", "actionTaken", "targetEntityId", "humanSignOffStatus"]
+    },
+    "LedgerBreak": {
+      "title": "LedgerBreak",
+      "description": "Reconciliation variance break between core banking ledger and payment rails.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "transactionRef": { "type": "string", "maxLength": 128 },
+        "coreBalance": { "type": "number" },
+        "settlementRailBalance": { "type": "number" },
+        "discrepancy": { "type": "number" },
+        "rail": { "type": "string", "maxLength": 32 },
+        "reason": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["Unresolved", "Auto-Journal Drafted", "Human Approved & Reconciled"] }
+      },
+      "required": ["id", "discrepancy", "rail", "status"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authorized banking personnel profile.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["analyst", "controller", "admin"] }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Collection of monitored payment transactions."
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable ledger of all agent decisions and dual-control signoffs."
+    },
+    "/ledger_breaks/{breakId}": {
+      "schema": { "$ref": "#/entities/LedgerBreak" },
+      "description": "Multi-rail reconciliation variance exceptions."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Authorized banking analyst profiles."
+    }
+  }
+}
